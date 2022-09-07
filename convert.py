@@ -3,6 +3,15 @@ from ics import Calendar, Event
 import re
 import time
 
+
+# Configurations
+workbook_name = 'test.xls' # Name of the excel file download from Zhengfang Jiaowu system
+the_first_day_of_the_semester = '2022-09-05' # YYYY-MM-DD
+timezone = 8 # Timezone (8 for China/Shanghai UTC+8) 
+ics_file_name = 'timetable.ics' # Name of the ics file to be generated
+
+
+# Definitions
 class Course:
     def __init__(self, name, time_str, location, professor):
         self._name = name
@@ -52,15 +61,13 @@ class Course:
         return self._day
         
 
-def write_course_to_ics():
-    pass
-
 # Open XLS file
-book = xlrd.open_workbook("test.xls")
+book = xlrd.open_workbook(workbook_name)
 print("The number of worksheets is {0}".format(book.nsheets))
 print("Worksheet name(s): {0}".format(book.sheet_names()))
 sh = book.sheet_by_index(0)
 print("Sheet {0} selected. nrows:{1} ncols:{2}".format(sh.name, sh.nrows, sh.ncols))
+
 
 # Parse XLS file to courses_lst
 keys_lst = []
@@ -108,13 +115,13 @@ print("\nParsed courses lst:")
 for course in class_courses_lst:
     print(course)
 
+
 # Write to ICS file
 print("\nWriting to ICS file...")
 
-first_day_of_semeseter = time.strptime("2022-9-5", "%Y-%m-%d")
+first_day_of_semeseter = time.strptime(the_first_day_of_the_semester, "%Y-%m-%d")
 
 c = Calendar()
-timezone = 8
 
 for course in class_courses_lst:
     for week in range(course.get_start_week(), course.get_end_week()+1):
@@ -126,9 +133,7 @@ for course in class_courses_lst:
         e.description = course.get_professor()
         c.events.add(e)
         
-
-with open('timetable.ics', 'w') as my_file:
+with open(ics_file_name, 'w') as my_file:
     my_file.writelines(c.serialize_iter())
-
 
 print("Done!")
